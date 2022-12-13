@@ -110,31 +110,108 @@ describe("GET/api/articles/:article_id", () => {
         expect(msg).toBe("Not Found In The Database");
       });
   });
-  test('400: invalid data type requested by the client (string)', () => {
-    const article_id = "banana"
+  test("400: invalid data type requested by the client (string)", () => {
+    const article_id = "banana";
     return request(app)
-    .get(`/api/articles/${article_id}`)
-    .expect(400)
-    .then(({body : {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .get(`/api/articles/${article_id}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('400: invalid data type requested by the client (negative integer)', () => {
+  test("400: invalid data type requested by the client (negative integer)", () => {
     const article_id = -5;
     return request(app)
-    .get(`/api/articles/${article_id}`)
+      .get(`/api/articles/${article_id}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid data type requested by the client (float)", () => {
+    const article_id = 6.5;
+    return request(app)
+      .get(`/api/articles/${article_id}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+});
+
+describe("GET/api/articles/:article_id/comments", () => {
+  test("200: responds with an array of comments for the given article requested by the client", () => {
+    const article_id = 6;
+    return request(app)
+      .get(`/api/articles/${article_id}/comments`)
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toBeInstanceOf(Array);
+        comments.forEach((comment) => {
+          expect(comment).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+  test("200: responds with an array of most recent comments for the given article requested by the client", () => {
+    const article_id = 1;
+    return request(app)
+      .get(`/api/articles/${article_id}/comments`)
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("200: responds with a message if the article requested by the client has no comments ", () => {
+    const article_id = 2;
+    return request(app)
+      .get(`/api/articles/${article_id}/comments`)
+      .expect(200)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe(`Article ${article_id} has no comments`);
+      });
+  });
+  test("404: non-existent article in the database", () => {
+    const article_id = 999;
+    return request(app)
+      .get(`/api/articles/${article_id}/comments`)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not Found In The Database");
+      });
+  });
+  test('400: invalid data type requested by the client (string)', () => {
+    const article_id = "banana";
+    return request(app)
+    .get(`/api/articles/${article_id}/comments`)
     .expect(400)
-    .then(({body : {msg}}) => {
+    .then(({body: {msg}}) => {
       expect(msg).toBe("Bad Request")
     })
   });
   test('400: invalid data type requested by the client (float)', () => {
-    const article_id = 6.5;
+    const article_id = 8.5;
     return request(app)
-    .get(`/api/articles/${article_id}`)
+    .get(`/api/articles/${article_id}/comments`)
     .expect(400)
-    .then(({body : {msg}}) => {
-      expect(msg).toBe("Bad Request")
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request");
+    })
+  });
+  test('400: invalid data type requested by the client (negative integer)', () => {
+    const article_id = -10;
+    return request(app)
+    .get(`/api/articles/${article_id}/comments`)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request");
     })
   });
 });
