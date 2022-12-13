@@ -47,7 +47,7 @@ describe("GET/api/articles", () => {
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toBeInstanceOf(Object);
-        expect(articles).toHaveLength(5);
+        expect(articles).toHaveLength(12);
         articles.forEach((article) => {
           expect(article).toEqual(
             expect.objectContaining({
@@ -78,5 +78,63 @@ describe("GET/api/articles", () => {
       .then(({ body }) => {
         expect(body).toEqual({ msg: "Path Not Found" });
       });
+  });
+});
+
+describe("GET/api/articles/:article_id", () => {
+  test("200: responds with an article object requested by the client", () => {
+    const article_id = 3;
+    return request(app)
+      .get(`/api/articles/${article_id}`)
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article).toEqual([
+          {
+            article_id: 3,
+            author: "icellusedkars",
+            title: "Eight pug gifs that remind me of mitch",
+            topic: "mitch",
+            body: "some gifs",
+            created_at: "2020-11-03T09:12:00.000Z",
+            votes: 0,
+          },
+        ]);
+      });
+  });
+  test("404: non-existent article in the database ", () => {
+    const article_id = 999;
+    return request(app)
+      .get(`/api/articles/${article_id}`)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not Found In The Database");
+      });
+  });
+  test('400: invalid data type requested by the client (string)', () => {
+    const article_id = "banana"
+    return request(app)
+    .get(`/api/articles/${article_id}`)
+    .expect(400)
+    .then(({body : {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test('400: invalid data type requested by the client (negative integer)', () => {
+    const article_id = -5;
+    return request(app)
+    .get(`/api/articles/${article_id}`)
+    .expect(400)
+    .then(({body : {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test('400: invalid data type requested by the client (float)', () => {
+    const article_id = 6.5;
+    return request(app)
+    .get(`/api/articles/${article_id}`)
+    .expect(400)
+    .then(({body : {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
   });
 });
