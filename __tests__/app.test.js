@@ -187,31 +187,171 @@ describe("GET/api/articles/:article_id/comments", () => {
         expect(msg).toBe("Not Found In The Database");
       });
   });
-  test('400: invalid data type requested by the client (string)', () => {
+  test("400: invalid data type requested by the client (string)", () => {
     const article_id = "banana";
     return request(app)
-    .get(`/api/articles/${article_id}/comments`)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .get(`/api/articles/${article_id}/comments`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('400: invalid data type requested by the client (float)', () => {
+  test("400: invalid data type requested by the client (float)", () => {
     const article_id = 8.5;
     return request(app)
-    .get(`/api/articles/${article_id}/comments`)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request");
-    })
+      .get(`/api/articles/${article_id}/comments`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('400: invalid data type requested by the client (negative integer)', () => {
+  test("400: invalid data type requested by the client (negative integer)", () => {
     const article_id = -10;
     return request(app)
-    .get(`/api/articles/${article_id}/comments`)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request");
-    })
+      .get(`/api/articles/${article_id}/comments`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+});
+
+describe("POST/api/articles/:article_id/comments", () => {
+  test("201: post a new comment on the given article", () => {
+    const article_id = 2;
+    const newComment = {
+      username: "butter_bridge",
+      body: "Being fit matters",
+    };
+    return request(app)
+      .post(`/api/articles/${article_id}/comments`)
+      .send(newComment)
+      .expect(201)
+      .then(({ body: { comments } }) => {
+        expect(comments).toBeInstanceOf(Array);
+        expect(comments).toHaveLength(1);
+        comments.forEach((comment) => {
+          expect(comment).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              body: expect.any(String),
+              article_id: expect.any(Number),
+              author: expect.any(String),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+  test("400: missing a 'username' key from the client's request", () => {
+    const article_id = 2;
+    const newComment = {
+      body: "Being fit matters",
+    };
+    return request(app)
+      .post(`/api/articles/${article_id}/comments`)
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: missing a 'body' key from the client's request", () => {
+    const article_id = 2;
+    const newComment = {
+      username: "butter_bridge",
+    };
+    return request(app)
+      .post(`/api/articles/${article_id}/comments`)
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: missing a username from the client's request (value)", () => {
+    const article_id = 2;
+    const newComment = {
+      username: "",
+      body: "Being fit matters",
+    };
+    return request(app)
+      .post(`/api/articles/${article_id}/comments`)
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: PSQL would not allow to post comments on a non-existent article, as it violates foreign key constraint", () => {
+    const article_id = 999;
+    const newComment = {
+      username: "butter_bridge",
+      body: "Being fit matters",
+    };
+    return request(app)
+      .post(`/api/articles/${article_id}/comments`)
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid data type requested by the client (string)", () => {
+    const article_id = "banana";
+    const newComment = {
+      username: "butter_bridge",
+      body: "Being fit matters",
+    };
+    return request(app)
+      .post(`/api/articles/${article_id}/comments`)
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid data type requested by the client (negative integer)", () => {
+    const article_id = -12;
+    const newComment = {
+      username: "butter_bridge",
+      body: "Being fit matters",
+    };
+    return request(app)
+      .post(`/api/articles/${article_id}/comments`)
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid data type requested by the client (float)", () => {
+    const article_id = 3.5;
+    const newComment = {
+      username: "butter_bridge",
+      body: "Being fit matters",
+    };
+    return request(app)
+      .post(`/api/articles/${article_id}/comments`)
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: username requested by the client is not in the database", () => {
+    const article_id = 2;
+    const newComment = {
+      username: "peter_griffin",
+      body: "Being fit matters",
+    };
+    return request(app)
+      .post(`/api/articles/${article_id}/comments`)
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
 });
