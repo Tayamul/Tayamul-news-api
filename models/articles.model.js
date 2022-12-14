@@ -28,4 +28,43 @@ const selectArticlesById = (article_id) => {
   });
 };
 
-module.exports = { selectArticles, selectArticlesById };
+const selectCommentsByArticles = (article_id) => {
+  if (article_id < 1) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  let queryString = `
+  SELECT comment_id, votes, created_at, author, body FROM comments
+  WHERE article_id = $1
+  ORDER BY created_at DESC;`;
+
+  return db.query(queryString, [article_id]).then(({ rows, rowCount }) => {
+    if (rowCount === 0) {
+      return db
+        .query(
+          `
+      SELECT article_id FROM articles
+      WHERE article_id = ${article_id}`
+        )
+        .then(({ rows }) => {
+          if (rows.length === 0) {
+            return Promise.reject({
+              status: 404,
+              msg: "Not Found In The Database",
+            });
+          }
+          return Promise.reject({
+            status: 200,
+            msg: `Article ${article_id} has no comments`,
+          });
+        });
+    }
+    return rows;
+  });
+};
+
+module.exports = {
+  selectArticles,
+  selectArticlesById,
+  selectCommentsByArticles,
+};
