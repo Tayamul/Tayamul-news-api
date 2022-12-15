@@ -63,8 +63,32 @@ const selectCommentsByArticles = (article_id) => {
   });
 };
 
+const updateArticles = (article_id, incrementBy) => {
+  if (incrementBy === undefined) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+  const queryString = `
+  UPDATE articles
+  SET votes = votes + $1
+  WHERE article_id = $2
+  RETURNING *;`;
+
+  return db
+    .query(queryString, [incrementBy, article_id])
+    .then(({ rows, rowCount }) => {
+      if (rowCount === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "Not Found In The Database",
+        });
+      }
+      return rows;
+    });
+};
+
 module.exports = {
   selectArticles,
   selectArticlesById,
   selectCommentsByArticles,
+  updateArticles,
 };

@@ -2,6 +2,7 @@ const {
   selectArticles,
   selectArticlesById,
   selectCommentsByArticles,
+  updateArticles,
 } = require("../models/articles.model");
 
 const getArticles = (req, res, next) => {
@@ -34,4 +35,20 @@ const getArticlesCommentsById = (req, res, next) => {
     .catch((err) => next(err));
 };
 
-module.exports = { getArticles, getArticlesById, getArticlesCommentsById };
+const patchArticlesById = (req, res, next) => {
+  const { article_id } = req.params;
+  const { incVote } = req.body;
+
+  updateArticles(article_id, incVote)
+    .then((votes) => {
+      res.status(200).send({ votes });
+    })
+    .catch((err) => next(err));
+};
+
+module.exports = {
+  getArticles,
+  getArticlesById,
+  getArticlesCommentsById,
+  patchArticlesById,
+};

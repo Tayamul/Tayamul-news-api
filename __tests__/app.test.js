@@ -187,31 +187,157 @@ describe("GET/api/articles/:article_id/comments", () => {
         expect(msg).toBe("Not Found In The Database");
       });
   });
-  test('400: invalid data type requested by the client (string)', () => {
+  test("400: invalid data type requested by the client (string)", () => {
     const article_id = "banana";
     return request(app)
-    .get(`/api/articles/${article_id}/comments`)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .get(`/api/articles/${article_id}/comments`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('400: invalid data type requested by the client (float)', () => {
+  test("400: invalid data type requested by the client (float)", () => {
     const article_id = 8.5;
     return request(app)
-    .get(`/api/articles/${article_id}/comments`)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request");
-    })
+      .get(`/api/articles/${article_id}/comments`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('400: invalid data type requested by the client (negative integer)', () => {
+  test("400: invalid data type requested by the client (negative integer)", () => {
     const article_id = -10;
     return request(app)
-    .get(`/api/articles/${article_id}/comments`)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request");
-    })
+      .get(`/api/articles/${article_id}/comments`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
+});
+
+describe("PATCH/api/articles/:article_id", () => {
+  test("200: increments votes by the given amount for a certain article requested by the client", () => {
+    const article_id = 1;
+    const newVote = 67;
+    const inc = { incVote: newVote };
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send(inc)
+      .expect(200)
+      .then(({ body: { votes } }) => {
+        expect(votes[0].votes).toBe(167);
+        votes.forEach((vote) => {
+          expect(vote).toEqual(
+            expect.objectContaining({
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("200: decrements votes by the given amount for a certain article requested by the client", () => {
+    const article_id = 1;
+    const newVote = -67;
+    const inc = { incVote: newVote };
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send(inc)
+      .expect(200)
+      .then(({ body: { votes } }) => {
+        expect(votes[0].votes).toBe(33);
+        votes.forEach((vote) => {
+          expect(vote).toEqual(
+            expect.objectContaining({
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("404: non-existent article in the database ", () => {
+    const article_id = 999;
+    const newVote = 28;
+    const inc = { incVote: newVote };
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send(inc)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not Found In The Database");
+      });
+  });
+  test("400: newVote requested by the client is a string", () => {
+    const article_id = 2;
+    const newVote = "banana";
+    const inc = { incVote: newVote };
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send(inc)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: newVote requested by the client is a float ", () => {
+    const article_id = 2;
+    const newVote = 89.5;
+    const inc = { incVote: newVote };
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send(inc)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid article_id requested by the client (string) ", () => {
+    const article_id = "banana";
+    const newVote = 28;
+    const inc = { incVote: newVote };
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send(inc)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid article_id requested by the client (float) ", () => {
+    const article_id = 3.5;
+    const newVote = 28;
+    const inc = { incVote: newVote };
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send(inc)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: missing newVote key in the object requested by the client", () => {
+    const article_id = 2;
+
+    const inc = { noVoteRequested: 45 };
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send(inc)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  
 });
