@@ -82,7 +82,7 @@ const updateArticles = (article_id, incrementBy) => {
           msg: "Not Found In The Database",
         });
       }
-      return rows;
+      return rows[0];
     });
 };
 
