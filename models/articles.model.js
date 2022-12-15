@@ -53,10 +53,7 @@ const selectCommentsByArticles = (article_id) => {
               msg: "Not Found In The Database",
             });
           }
-          return Promise.reject({
-            status: 200,
-            msg: `Article ${article_id} has no comments`,
-          });
+          return [];
         });
     }
     return rows;

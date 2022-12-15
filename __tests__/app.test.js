@@ -169,13 +169,13 @@ describe("GET/api/articles/:article_id/comments", () => {
         expect(comments).toBeSortedBy("created_at", { descending: true });
       });
   });
-  test("200: responds with a message if the article requested by the client has no comments ", () => {
+  test("200: responds with an empty array if the article requested by the client has no comments ", () => {
     const article_id = 2;
     return request(app)
       .get(`/api/articles/${article_id}/comments`)
       .expect(200)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe(`Article ${article_id} has no comments`);
+      .then(({ body: { comments } }) => {
+        expect(comments).toEqual([]);
       });
   });
   test("404: non-existent article in the database", () => {
