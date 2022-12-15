@@ -63,8 +63,33 @@ const selectCommentsByArticles = (article_id) => {
   });
 };
 
-const insertComments = (newComment, article_id) => {
+const insertComments = async (newComment, article_id) => {
   const { username, body } = newComment;
+
+  if (!username || !body)
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+
+  if (article_id < 1)
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+
+  const SQL = `
+  SELECT * FROM articles
+  WHERE article_id = $1;`;
+
+  const { rowCount } = await db.query(SQL, [article_id]);
+  if (rowCount === 0)
+    return Promise.reject({
+      status: 404,
+      msg: `Article ${article_id} Is Not In The Database`,
+    });
+
+  const SQL2 = `
+  SELECT * FROM users
+  WHERE username = $1;`;
+
+  const result = await db.query(SQL2, [username]);
+  if (result.rowCount === 0)
+    return Promise.reject({ status: 404, msg: "Username Not Found" });
 
   const queryString = `
   INSERT INTO comments
@@ -76,9 +101,7 @@ const insertComments = (newComment, article_id) => {
 
   return db
     .query(queryString, [article_id, username, body])
-    .then(({ rows }) => {
-      return rows;
-    });
+    .then(({ rows }) => rows[0]);
 };
 
 module.exports = {

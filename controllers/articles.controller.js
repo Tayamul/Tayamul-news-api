@@ -39,8 +39,8 @@ const postComments = (req, res, next) => {
   const { article_id } = req.params;
 
   insertComments(req.body, article_id)
-    .then((comments) => {
-      res.status(201).send({ comments });
+    .then((comment) => {
+      res.status(201).send({ comment });
     })
     .catch((err) => next(err));
 };

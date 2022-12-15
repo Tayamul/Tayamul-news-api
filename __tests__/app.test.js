@@ -217,7 +217,7 @@ describe("GET/api/articles/:article_id/comments", () => {
 });
 
 describe("POST/api/articles/:article_id/comments", () => {
-  test("201: post a new comment on the given article", () => {
+  test("201: should respond with an object containing newly posted comment", () => {
     const article_id = 2;
     const newComment = {
       username: "butter_bridge",
@@ -227,20 +227,15 @@ describe("POST/api/articles/:article_id/comments", () => {
       .post(`/api/articles/${article_id}/comments`)
       .send(newComment)
       .expect(201)
-      .then(({ body: { comments } }) => {
-        expect(comments).toBeInstanceOf(Array);
-        expect(comments).toHaveLength(1);
-        comments.forEach((comment) => {
-          expect(comment).toEqual(
-            expect.objectContaining({
-              comment_id: expect.any(Number),
-              body: expect.any(String),
-              article_id: expect.any(Number),
-              author: expect.any(String),
-              votes: expect.any(Number),
-              created_at: expect.any(String),
-            })
-          );
+      .then(({ body: { comment } }) => {
+        expect(comment).toBeInstanceOf(Object);
+        expect.objectContaining({
+          comment_id: 19,
+          author: "butter_bridge",
+          body: "Being fit matters",
+          article_id: `${article_id}`,
+          votes: expect.any(Number),
+          created_at: expect.any(String),
         });
       });
   });
@@ -270,21 +265,7 @@ describe("POST/api/articles/:article_id/comments", () => {
         expect(msg).toBe("Bad Request");
       });
   });
-  test("400: missing a username from the client's request (value)", () => {
-    const article_id = 2;
-    const newComment = {
-      username: "",
-      body: "Being fit matters",
-    };
-    return request(app)
-      .post(`/api/articles/${article_id}/comments`)
-      .send(newComment)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
-  });
-  test("400: PSQL would not allow to post comments on a non-existent article, as it violates foreign key constraint", () => {
+  test("404: non-existent article in the database", () => {
     const article_id = 999;
     const newComment = {
       username: "butter_bridge",
@@ -293,9 +274,23 @@ describe("POST/api/articles/:article_id/comments", () => {
     return request(app)
       .post(`/api/articles/${article_id}/comments`)
       .send(newComment)
-      .expect(400)
+      .expect(404)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(`Article ${article_id} Is Not In The Database`);
+      });
+  });
+  test("404: username requested by the client is not in the database", () => {
+    const article_id = 2;
+    const newComment = {
+      username: "peter_griffin",
+      body: "Being fit matters",
+    };
+    return request(app)
+      .post(`/api/articles/${article_id}/comments`)
+      .send(newComment)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Username Not Found");
       });
   });
   test("400: invalid data type requested by the client (string)", () => {
@@ -330,20 +325,6 @@ describe("POST/api/articles/:article_id/comments", () => {
     const article_id = 3.5;
     const newComment = {
       username: "butter_bridge",
-      body: "Being fit matters",
-    };
-    return request(app)
-      .post(`/api/articles/${article_id}/comments`)
-      .send(newComment)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
-  });
-  test("400: username requested by the client is not in the database", () => {
-    const article_id = 2;
-    const newComment = {
-      username: "peter_griffin",
       body: "Being fit matters",
     };
     return request(app)
