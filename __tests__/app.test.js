@@ -82,23 +82,25 @@ describe("GET/api/articles", () => {
 });
 
 describe("GET/api/articles/:article_id", () => {
-  test("200: responds with an article object requested by the client", () => {
+  test("200: responds with an article object requested by the client (with an added property of comment count)", () => {
     const article_id = 3;
     return request(app)
       .get(`/api/articles/${article_id}`)
       .expect(200)
       .then(({ body: { article } }) => {
-        expect(article).toEqual([
-          {
-            article_id: 3,
-            author: "icellusedkars",
-            title: "Eight pug gifs that remind me of mitch",
-            topic: "mitch",
-            body: "some gifs",
-            created_at: "2020-11-03T09:12:00.000Z",
-            votes: 0,
-          },
-        ]);
+        expect(article).toBeInstanceOf(Object);
+        expect(article).toEqual(
+          expect.objectContaining({
+            article_id,
+            author: expect.any(String),
+            title: expect.any(String),
+            topic: expect.any(String),
+            body: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(String),
+          })
+        );
       });
   });
   test("404: non-existent article in the database ", () => {
@@ -321,7 +323,7 @@ describe("POST/api/articles/:article_id/comments", () => {
         expect(msg).toBe("Bad Request");
       });
   });
-    test("400: invalid data type requested by the client (float)", () => {
+  test("400: invalid data type requested by the client (float)", () => {
     const article_id = 3.5;
     const newComment = {
       username: "butter_bridge",
@@ -336,7 +338,6 @@ describe("POST/api/articles/:article_id/comments", () => {
       });
   });
 });
-
 
 describe("PATCH/api/articles/:article_id", () => {
   test("200: increments votes by the given amount for a certain article requested by the client", () => {
@@ -441,7 +442,7 @@ describe("PATCH/api/articles/:article_id", () => {
         expect(msg).toBe("Bad Request");
       });
   });
-   test("400: missing 'inc_votes' key in the object requested by the client", () => {
+  test("400: missing 'inc_votes' key in the object requested by the client", () => {
     const article_id = 2;
 
     const inc = { noVoteRequested: 45 };
@@ -453,7 +454,7 @@ describe("PATCH/api/articles/:article_id", () => {
         expect(msg).toBe("Bad Request");
       });
   });
-   test("400: missing body in the object requested by the client", () => {
+  test("400: missing body in the object requested by the client", () => {
     const article_id = 2;
     const newVote = {};
     const inc = { inc_votes: newVote };
@@ -466,5 +467,3 @@ describe("PATCH/api/articles/:article_id", () => {
       });
   });
 });
-
-      

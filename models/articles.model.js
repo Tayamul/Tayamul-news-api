@@ -17,14 +17,18 @@ const selectArticlesById = (article_id) => {
   }
 
   const queryString = `
-  SELECT article_id, author, title, topic, body, created_at, votes FROM articles
-  WHERE article_id = $1;`;
+  SELECT articles.article_id, articles.author, articles.title, articles.topic, articles.body, articles.created_at, articles.votes, COUNT(comments.body) AS comment_count
+  FROM articles
+  LEFT JOIN comments
+  ON articles.article_id = comments.article_id
+  WHERE articles.article_id = $1
+  GROUP BY articles.article_id;`;
 
   return db.query(queryString, [article_id]).then(({ rows, rowCount }) => {
     if (rowCount === 0) {
       return Promise.reject({ status: 404, msg: "Not Found In The Database" });
     }
-    return rows;
+    return rows[0];
   });
 };
 
@@ -59,7 +63,6 @@ const selectCommentsByArticles = (article_id) => {
     return rows;
   });
 };
-
 
 const insertComments = async (newComment, article_id) => {
   const { username, body } = newComment;
@@ -102,7 +105,6 @@ const insertComments = async (newComment, article_id) => {
     .then(({ rows }) => rows[0]);
 };
 
-
 const updateArticles = (article_id, incrementBy) => {
   if (incrementBy === undefined) {
     return Promise.reject({ status: 400, msg: "Bad Request" });
@@ -124,11 +126,11 @@ const updateArticles = (article_id, incrementBy) => {
       }
       return rows[0];
     });
-  }  
+};
 module.exports = {
   selectArticles,
   selectArticlesById,
   selectCommentsByArticles,
   insertComments,
-  updateArticles
+  updateArticles,
 };
