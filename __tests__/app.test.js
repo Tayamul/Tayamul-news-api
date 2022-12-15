@@ -331,4 +331,16 @@ describe("PATCH/api/articles/:article_id", () => {
         expect(msg).toBe("Bad Request");
       });
   });
+  test("400: missing body in the object requested by the client", () => {
+    const article_id = 2;
+    const newVote = {};
+    const inc = { inc_votes: newVote };
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send(inc)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
 });
