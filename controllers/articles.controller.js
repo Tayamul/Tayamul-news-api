@@ -54,8 +54,9 @@ const patchArticlesById = (req, res, next) => {
   updateArticles(article_id, inc_votes)
     .then((article) => {
       res.status(200).send({ article });
-
-
+    })
+    .catch((err) => next(err));
+};
 
 module.exports = {
   getArticles,

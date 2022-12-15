@@ -124,7 +124,7 @@ const updateArticles = (article_id, incrementBy) => {
       }
       return rows[0];
     });
-    
+  }  
 module.exports = {
   selectArticles,
   selectArticlesById,
