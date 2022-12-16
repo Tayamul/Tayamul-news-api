@@ -321,7 +321,7 @@ describe("POST/api/articles/:article_id/comments", () => {
         expect(msg).toBe("Bad Request");
       });
   });
-    test("400: invalid data type requested by the client (float)", () => {
+  test("400: invalid data type requested by the client (float)", () => {
     const article_id = 3.5;
     const newComment = {
       username: "butter_bridge",
@@ -336,7 +336,6 @@ describe("POST/api/articles/:article_id/comments", () => {
       });
   });
 });
-
 
 describe("PATCH/api/articles/:article_id", () => {
   test("200: increments votes by the given amount for a certain article requested by the client", () => {
@@ -441,7 +440,7 @@ describe("PATCH/api/articles/:article_id", () => {
         expect(msg).toBe("Bad Request");
       });
   });
-   test("400: missing 'inc_votes' key in the object requested by the client", () => {
+  test("400: missing 'inc_votes' key in the object requested by the client", () => {
     const article_id = 2;
 
     const inc = { noVoteRequested: 45 };
@@ -453,7 +452,7 @@ describe("PATCH/api/articles/:article_id", () => {
         expect(msg).toBe("Bad Request");
       });
   });
-   test("400: missing body in the object requested by the client", () => {
+  test("400: missing body in the object requested by the client", () => {
     const article_id = 2;
     const newVote = {};
     const inc = { inc_votes: newVote };
@@ -467,4 +466,23 @@ describe("PATCH/api/articles/:article_id", () => {
   });
 });
 
-      
+describe.only("(GET/api/users)", () => {
+  test("200: should return array of all the user objects", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body: { users } }) => {
+        expect(users).toBeInstanceOf(Array);
+        expect(users).toHaveLength(4);
+        users.forEach((user) => {
+          expect(user).toEqual(
+            expect.objectContaining({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+});
