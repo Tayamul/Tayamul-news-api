@@ -46,7 +46,7 @@ describe("GET/api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body: { articles } }) => {
-        expect(articles).toBeInstanceOf(Object);
+        expect(articles).toBeInstanceOf(Array);
         expect(articles).toHaveLength(12);
         articles.forEach((article) => {
           expect(article).toEqual(
@@ -63,7 +63,65 @@ describe("GET/api/articles", () => {
         });
       });
   });
-  test("200: articles should be sorted by date in descending order by default ", () => {
+  test("200: should accept a topic query which filters the articles by the topic value specified", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeInstanceOf(Array);
+        articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: "mitch",
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+  test("200: should return an empty array if the topic requested by the client does not exist", () => {
+    return request(app)
+      .get("/api/articles?topic=london")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toEqual([]);
+      });
+  });
+  test("200: should respond with all the articles if topic query is not provided", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeInstanceOf(Array);
+        articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+  test("200: should accept a sort_by query which sorts the article by any valid column (defaults to descending)", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("author", { descending: true });
+      });
+  });
+  test("200: articles should be sorted by date if no query is provided (defaults to descending) ", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -71,12 +129,58 @@ describe("GET/api/articles", () => {
         expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
-  test("404: non-existent route", () => {
+  test("200: should accept an order query set to 'asc', which sorts the article in an ascending order", () => {
     return request(app)
-      .get("/api/articl")
-      .expect(404)
-      .then(({ body }) => {
-        expect(body).toEqual({ msg: "Path Not Found" });
+      .get("/api/articles?sort_by=author&order=asc")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("author");
+      });
+  });
+  test("200: should accept an order query set to 'desc' by default, which sorts the article in a descending order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("author", { descending: true });
+      });
+  });
+  test("400: invalid value requested by the client for order query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author&order=ascending")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: non-existent column requested by the client for sort_by query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=banana")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("200: responds with an array of articles given all three valid queries", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&sort_by=author&order=asc")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles).toBeSortedBy("author");
+        articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: "mitch",
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(String),
+            })
+          );
+        });
       });
   });
 });
@@ -321,7 +425,7 @@ describe("POST/api/articles/:article_id/comments", () => {
         expect(msg).toBe("Bad Request");
       });
   });
-    test("400: invalid data type requested by the client (float)", () => {
+  test("400: invalid data type requested by the client (float)", () => {
     const article_id = 3.5;
     const newComment = {
       username: "butter_bridge",
@@ -336,7 +440,6 @@ describe("POST/api/articles/:article_id/comments", () => {
       });
   });
 });
-
 
 describe("PATCH/api/articles/:article_id", () => {
   test("200: increments votes by the given amount for a certain article requested by the client", () => {
@@ -441,7 +544,7 @@ describe("PATCH/api/articles/:article_id", () => {
         expect(msg).toBe("Bad Request");
       });
   });
-   test("400: missing 'inc_votes' key in the object requested by the client", () => {
+  test("400: missing 'inc_votes' key in the object requested by the client", () => {
     const article_id = 2;
 
     const inc = { noVoteRequested: 45 };
@@ -453,7 +556,7 @@ describe("PATCH/api/articles/:article_id", () => {
         expect(msg).toBe("Bad Request");
       });
   });
-   test("400: missing body in the object requested by the client", () => {
+  test("400: missing body in the object requested by the client", () => {
     const article_id = 2;
     const newVote = {};
     const inc = { inc_votes: newVote };
@@ -466,5 +569,3 @@ describe("PATCH/api/articles/:article_id", () => {
       });
   });
 });
-
-      
