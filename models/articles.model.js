@@ -1,14 +1,54 @@
 const db = require("../db/connection");
 
-const selectArticles = () => {
-  const queryString = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, COUNT(comments.body) AS comment_count
+const selectArticles = async (
+  topic,
+  sort_by = "created_at",
+  order = "desc"
+) => {
+  if (topic) {
+    const SQL = `SELECT * FROM topics WHERE slug = $1`;
+    const { rowCount } = await db.query(SQL, [topic]);
+    if (rowCount === 0) {
+      return Promise.reject({ status: 404, msg: `${topic} not found` });
+    }
+  }
+
+  const validSortByQueries = [
+    "author",
+    "title",
+    "article_id",
+    "topic",
+    "created_at",
+    "votes",
+    "comment_count",
+  ];
+
+  if (!validSortByQueries.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  const validOrderQueries = ["asc", "desc"];
+
+  if (!validOrderQueries.includes(order)) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  let topicValue = [];
+  let queryString = `
+  SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, COUNT(comments.body) AS comment_count
   FROM articles
   LEFT JOIN comments
-  ON articles.article_id = comments.article_id
-  GROUP BY articles.article_id
-  ORDER BY created_at DESC;`;
+  ON articles.article_id = comments.article_id `;
 
-  return db.query(queryString).then(({ rows }) => rows);
+  if (topic !== undefined) {
+    queryString += `WHERE articles.topic = $1 `;
+    topicValue.push(topic);
+  }
+
+  queryString += `GROUP BY articles.article_id
+  ORDER BY ${sort_by} ${order};`;
+
+  return db.query(queryString, topicValue).then(({ rows }) => rows);
 };
 
 const selectArticlesById = (article_id) => {
