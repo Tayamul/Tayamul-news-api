@@ -468,8 +468,7 @@ describe("PATCH/api/articles/:article_id", () => {
   });
 });
 
-
-describe.only("(GET/api/users)", () => {
+describe("(GET/api/users)", () => {
   test("200: should return array of all the user objects", () => {
     return request(app)
       .get("/api/users")
@@ -490,3 +489,45 @@ describe.only("(GET/api/users)", () => {
   });
 });
 
+describe("DELETE/api/comments/:comment_id", () => {
+  test("204: delete the comment requested by the client", () => {
+    const comment_id = 2;
+    return request(app).delete(`/api/comments/${comment_id}`).expect(204);
+  });
+  test("404: comment_id not found", () => {
+    const comment_id = 999;
+    return request(app)
+      .delete(`/api/comments/${comment_id}`)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe(`${comment_id} Not Found In The Database`);
+      });
+  });
+  test("400: invalid data type requested by the client (string)", () => {
+    const comment_id = "banana";
+    return request(app)
+      .delete(`/api/comments/${comment_id}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid data type requested by the client (float)", () => {
+    const comment_id = 4.5;
+    return request(app)
+      .delete(`/api/comments/${comment_id}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid data type requested by the client (negative integer)", () => {
+    const comment_id = -12;
+    return request(app)
+      .delete(`/api/comments/${comment_id}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+});
