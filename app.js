@@ -9,7 +9,7 @@ const {
   getArticlesById,
   getArticlesCommentsById,
   postComments,
-  patchArticlesById
+  patchArticlesById,
 } = require("./controllers/articles.controller");
 const {
   invalidPathErrorHandler,
@@ -18,7 +18,9 @@ const {
   handle500s,
 } = require("./errors/errors");
 
-const { getUsers } = require("./controllers/users.controller")
+const { getUsers } = require("./controllers/users.controller");
+
+const { deleteComments } = require("./controllers/comments.controller");
 
 app.get("/api/topics", getTopics);
 
@@ -28,8 +30,9 @@ app.get("/api/articles/:article_id/comments", getArticlesCommentsById);
 app.post("/api/articles/:article_id/comments", postComments);
 app.patch("/api/articles/:article_id", patchArticlesById);
 
-app.get("/api/users", getUsers)
+app.get("/api/users", getUsers);
 
+app.delete("/api/comments/:comment_id", deleteComments);
 
 app.use(psqlErrorHandler);
 app.use(customErrorHandler);
