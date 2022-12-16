@@ -82,23 +82,25 @@ describe("GET/api/articles", () => {
 });
 
 describe("GET/api/articles/:article_id", () => {
-  test("200: responds with an article object requested by the client", () => {
+  test("200: responds with an article object requested by the client (with an added property of comment count)", () => {
     const article_id = 3;
     return request(app)
       .get(`/api/articles/${article_id}`)
       .expect(200)
       .then(({ body: { article } }) => {
-        expect(article).toEqual([
-          {
-            article_id: 3,
-            author: "icellusedkars",
-            title: "Eight pug gifs that remind me of mitch",
-            topic: "mitch",
-            body: "some gifs",
-            created_at: "2020-11-03T09:12:00.000Z",
-            votes: 0,
-          },
-        ]);
+        expect(article).toBeInstanceOf(Object);
+        expect(article).toEqual(
+          expect.objectContaining({
+            article_id,
+            author: expect.any(String),
+            title: expect.any(String),
+            topic: expect.any(String),
+            body: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(String),
+          })
+        );
       });
   });
   test("404: non-existent article in the database ", () => {
@@ -466,6 +468,7 @@ describe("PATCH/api/articles/:article_id", () => {
   });
 });
 
+
 describe.only("(GET/api/users)", () => {
   test("200: should return array of all the user objects", () => {
     return request(app)
@@ -486,3 +489,4 @@ describe.only("(GET/api/users)", () => {
       });
   });
 });
+
