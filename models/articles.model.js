@@ -1,6 +1,18 @@
 const db = require("../db/connection");
 
-const selectArticles = (topic, sort_by = "created_at", order = "desc") => {
+const selectArticles = async (
+  topic,
+  sort_by = "created_at",
+  order = "desc"
+) => {
+  if (topic) {
+    const SQL = `SELECT * FROM topics WHERE slug = $1`;
+    const { rowCount } = await db.query(SQL, [topic]);
+    if (rowCount === 0) {
+      return Promise.reject({ status: 404, msg: `${topic} not found` });
+    }
+  }
+
   const validSortByQueries = [
     "author",
     "title",

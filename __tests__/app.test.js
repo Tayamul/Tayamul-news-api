@@ -69,6 +69,7 @@ describe("GET/api/articles", () => {
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toBeInstanceOf(Array);
+        expect(articles).toHaveLength(11);
         articles.forEach((article) => {
           expect(article).toEqual(
             expect.objectContaining({
@@ -84,20 +85,13 @@ describe("GET/api/articles", () => {
         });
       });
   });
-  test("200: should return an empty array if the topic requested by the client does not exist", () => {
-    return request(app)
-      .get("/api/articles?topic=london")
-      .expect(200)
-      .then(({ body: { articles } }) => {
-        expect(articles).toEqual([]);
-      });
-  });
   test("200: should respond with all the articles if topic query is not provided", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toBeInstanceOf(Array);
+        expect(articles).toHaveLength(12);
         articles.forEach((article) => {
           expect(article).toEqual(
             expect.objectContaining({
@@ -161,12 +155,21 @@ describe("GET/api/articles", () => {
         expect(msg).toBe("Bad Request");
       });
   });
+  test("404: non-existent topic in the database", () => {
+    return request(app)
+      .get("/api/articles?topic=banana")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("banana not found");
+      });
+  });
   test("200: responds with an array of articles given all three valid queries", () => {
     return request(app)
       .get("/api/articles?topic=mitch&sort_by=author&order=asc")
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toBeInstanceOf(Array);
+        expect(articles).toHaveLength(11);
         expect(articles).toBeSortedBy("author");
         articles.forEach((article) => {
           expect(article).toEqual(
