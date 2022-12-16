@@ -189,23 +189,25 @@ describe("GET/api/articles", () => {
 });
 
 describe("GET/api/articles/:article_id", () => {
-  test("200: responds with an article object requested by the client", () => {
+  test("200: responds with an article object requested by the client (with an added property of comment count)", () => {
     const article_id = 3;
     return request(app)
       .get(`/api/articles/${article_id}`)
       .expect(200)
       .then(({ body: { article } }) => {
-        expect(article).toEqual([
-          {
-            article_id: 3,
-            author: "icellusedkars",
-            title: "Eight pug gifs that remind me of mitch",
-            topic: "mitch",
-            body: "some gifs",
-            created_at: "2020-11-03T09:12:00.000Z",
-            votes: 0,
-          },
-        ]);
+        expect(article).toBeInstanceOf(Object);
+        expect(article).toEqual(
+          expect.objectContaining({
+            article_id,
+            author: expect.any(String),
+            title: expect.any(String),
+            topic: expect.any(String),
+            body: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(String),
+          })
+        );
       });
   });
   test("404: non-existent article in the database ", () => {
@@ -572,3 +574,68 @@ describe("PATCH/api/articles/:article_id", () => {
       });
   });
 });
+
+describe("(GET/api/users)", () => {
+  test("200: should return array of all the user objects", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body: { users } }) => {
+        expect(users).toBeInstanceOf(Array);
+        expect(users).toHaveLength(4);
+        users.forEach((user) => {
+          expect(user).toEqual(
+            expect.objectContaining({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+});
+
+describe("DELETE/api/comments/:comment_id", () => {
+  test("204: delete the comment requested by the client", () => {
+    const comment_id = 2;
+    return request(app).delete(`/api/comments/${comment_id}`).expect(204);
+  });
+  test("404: comment_id not found", () => {
+    const comment_id = 999;
+    return request(app)
+      .delete(`/api/comments/${comment_id}`)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe(`${comment_id} Not Found In The Database`);
+      });
+  });
+  test("400: invalid data type requested by the client (string)", () => {
+    const comment_id = "banana";
+    return request(app)
+      .delete(`/api/comments/${comment_id}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid data type requested by the client (float)", () => {
+    const comment_id = 4.5;
+    return request(app)
+      .delete(`/api/comments/${comment_id}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid data type requested by the client (negative integer)", () => {
+    const comment_id = -12;
+    return request(app)
+      .delete(`/api/comments/${comment_id}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+});
+
