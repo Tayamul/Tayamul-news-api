@@ -2,11 +2,16 @@ name: Test & Deploy
 
 on:
   push:
-    branches:
-      -main
+    branches: -main
 
 jobs:
-  test-utils:  
+  greetings:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Say Hello
+        run: echo 'Hey there'
+
+  test-utils:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout and clone repo
