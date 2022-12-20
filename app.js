@@ -17,10 +17,15 @@ const {
   customErrorHandler,
   handle500s,
 } = require("./errors/errors");
+const endpoints = require("./endpoints.json")
 
 const { getUsers } = require("./controllers/users.controller");
 
 const { deleteComments } = require("./controllers/comments.controller");
+
+app.get("/api", (req, res) => {
+  res.status(200).send(endpoints);
+});
 
 app.get("/api/topics", getTopics);
 
