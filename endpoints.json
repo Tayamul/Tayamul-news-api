@@ -10,7 +10,7 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all topics",
+    "description": "serves an array of all articles",
     "queries": ["author", "topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
@@ -20,6 +20,88 @@
           "author": "weegembump",
           "body": "Text from the article..",
           "created_at": 1527695953341
+        }
+      ]
+    }
+  },
+  "GET /api/articles/:articles_id": {
+    "description": "serves an object of a specific article requested by the client",
+    "exampleResponse": {
+      "article": {
+        "article_id": 5,
+        "author": "jessjelly",
+        "title": "Please stop worrying about Angular 3",
+        "topic": "coding",
+        "body": "Another Angular version planned already? Whaaaat? Didn’t Angular 2 just ship? Why Angular 3? What? Why? First off, there is no massive rewrite, and won’t be for Angular 3. Secondly, let me explain the future of Angular 2 and what Angular 3, Angular 4 will mean for you.",
+        "created_at": "2020-04-21T16:06:00.000Z",
+        "votes": 0,
+        "comment_count": "6"
+      }
+    }
+  },
+  "PATCH /api/articles/:articles_id": {
+    "description": "serves an object of updated article by their vote count",
+    "exampleResponse": {
+      "article": {
+        "article_id": 5,
+        "author": "jessjelly",
+        "title": "Please stop worrying about Angular 3",
+        "topic": "coding",
+        "body": "Another Angular version planned already? Whaaaat? Didn’t Angular 2 just ship? Why Angular 3? What? Why? First off, there is no massive rewrite, and won’t be for Angular 3. Secondly, let me explain the future of Angular 2 and what Angular 3, Angular 4 will mean for you.",
+        "created_at": "2020-04-21T16:06:00.000Z",
+        "votes": 50,
+        "comment_count": "6"
+      }
+    }
+  },
+  "GET /api/articles/:articles_id/comments": {
+    "description": "serves an array of comments associated with the given article",
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 89,
+          "votes": 2,
+          "created_at": "2020-10-24T06:08:00.000Z",
+          "author": "cooljmessy",
+          "body": " Be and expedient not these. The pleasures of the pleasures of convenience. The least desire never receives them. That is the debts of life or fall into the hate that we can have. "
+        },
+        {
+          "comment_id": 86,
+          "votes": 14,
+          "created_at": "2020-10-04T01:03:00.000Z",
+          "author": "tickle122",
+          "body": " And I will explain the most worthy duties of some corrupted by the pain of things. The fault of their body and their duties is a and at. But we can choose to refuse something by flattery. But fault is fault. No one is more averse to exercise than others. "
+        }
+      ]
+    }
+  },
+  "POST /api/articles/:articles_id/comments": {
+    "description": "serves an object of comment recently posted by the client",
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 91,
+          "votes": 6,
+          "created_at": "2020-10-24T06:08:00.000Z",
+          "author": "weegembump",
+          "body": "One of the best articles I've stumbled upon in awhile"
+        }
+      ]
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "delete a comment for the given comment_id by the client",
+    "exampleResponse": {}
+  },
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "queries": [],
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "tickle122",
+          "name": "Tom Tickle",
+          "avatar_url": "https://vignette.wikia.nocookie.net/mrmen/images/d/d6/Mr-Tickle-9a.png/revision/latest?cb=20180127221953"
         }
       ]
     }

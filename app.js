@@ -17,7 +17,7 @@ const {
   customErrorHandler,
   handle500s,
 } = require("./errors/errors");
-const endpoints = require("./endpoints.json")
+const endpoints = require("./endpoints.json");
 
 const { getUsers } = require("./controllers/users.controller");
 
