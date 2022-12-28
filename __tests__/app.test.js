@@ -835,3 +835,179 @@ describe('PATCH/api/comments/:comment_id', () => {
     })
   });
 });
+
+describe('POST/api/articles', () => {
+  test('201: responds with a newly added article ', () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "Thoughts on bootcamp",
+      body: "It's an amazing experience where you get to learn so much more than self-studying.",
+      topic: "mitch"
+    }
+    return request(app)
+    .post(`/api/articles`)
+    .send(newArticle)
+    .expect(201)
+    .then(({body: {article}}) => {
+      expect(article).toBeInstanceOf(Object)
+      expect(article).toEqual(
+        expect.objectContaining({
+          author: "butter_bridge",
+          title: "Thoughts on bootcamp",
+          body: "It's an amazing experience where you get to learn so much more than self-studying.",
+          topic: "mitch",
+          article_id: 13,
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+          comment_count: expect.any(String)
+        })
+      )
+    })
+  });
+  test('404: non-existent author in the database', () => {
+    const newArticle = {
+      author: "peter_griffin",
+      title: "Thoughts on bootcamp",
+      body: "It's an amazing experience where you get to learn so much more than self-studying.",
+      topic: "mitch"
+    }
+    return request(app)
+    .post(`/api/articles`)
+    .send(newArticle)
+    .expect(404)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Not Found In The Database")
+    })
+  });
+  test('404: non-existent topic in the database', () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "Thoughts on bootcamp",
+      body: "It's an amazing experience where you get to learn so much more than self-studying.",
+      topic: "bootcamp"
+    }
+    return request(app)
+    .post(`/api/articles`)
+    .send(newArticle)
+    .expect(404)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Not Found In The Database")
+    })
+  });
+  test('400: invalid author requested by the client (number)', () => {
+    const newArticle = {
+      author: 2,
+      title: "Thoughts on bootcamp",
+      body: "It's an amazing experience where you get to learn so much more than self-studying.",
+      topic: "mitch"
+    }
+    return request(app)
+    .post(`/api/articles`)
+    .send(newArticle)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test('400: invalid topic requested by the client (number)', () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "Thoughts on bootcamp",
+      body: "It's an amazing experience where you get to learn so much more than self-studying.",
+      topic: 5
+    }
+    return request(app)
+    .post(`/api/articles`)
+    .send(newArticle)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test("400: invalid data type for 'body' key requested by the client (number)", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "Thoughts on bootcamp",
+      body: 5,
+      topic: "mitch"
+    }
+    return request(app)
+    .post(`/api/articles`)
+    .send(newArticle)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test("400: invalid data type for 'title' key requested by the client (number)", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: 10,
+      body: "It's an amazing experience where you get to learn so much more than self-studying.",
+      topic: "mitch"
+    }
+    return request(app)
+    .post(`/api/articles`)
+    .send(newArticle)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test("400: missing 'author' key from the client's request", () => {
+    const newArticle = {
+      title: "Thoughts on bootcamp",
+      body: "It's an amazing experience where you get to learn so much more than self-studying.",
+      topic: "mitch"
+    }
+    return request(app)
+    .post(`/api/articles`)
+    .send(newArticle)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test("400: missing 'title' key from the client's request", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      body: "It's an amazing experience where you get to learn so much more than self-studying.",
+      topic: "mitch"
+    }
+    return request(app)
+    .post(`/api/articles`)
+    .send(newArticle)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test("400: missing 'body' key from the client's request", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "Thoughts on bootcamp",
+      topic: "mitch"
+    }
+    return request(app)
+    .post(`/api/articles`)
+    .send(newArticle)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test("400: missing 'topic' key from the client's request", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "Thoughts on bootcamp",
+      body: "It's an amazing experience where you get to learn so much more than self-studying."
+    }
+    return request(app)
+    .post(`/api/articles`)
+    .send(newArticle)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+});

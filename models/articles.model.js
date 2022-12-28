@@ -167,10 +167,95 @@ const updateArticles = (article_id, incrementBy) => {
       return rows[0];
     });
 };
+
+const insertArticles = async (newArticle) => {
+  const { author, title, body, topic } = newArticle;
+
+  if(!author || !title || !body || !topic) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  if(!isNaN(author) || !isNaN(topic) || !isNaN(body) || !isNaN(title)) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  const query1 = `
+  SELECT * FROM articles
+  WHERE author = $1;`;
+
+  const result1 = await db.query(query1, [author]);
+  if (result1.rows.length === 0) {
+    return Promise.reject({ status: 404, msg: "Not Found In The Database" });
+  }
+
+  const query2 = `
+  SELECT * FROM articles
+  WHERE topic = $1;`;
+
+  const result2 = await db.query(query2, [topic]);
+  if (result2.rows.length === 0) {
+    return Promise.reject({ status: 404, msg: "Not Found In The Database" });
+  }
+
+  const SQL = `
+  INSERT INTO articles
+    (author, title, body, topic)
+    VALUES
+    ($1, $2, $3, $4)
+    RETURNING *;
+  `;
+  return db
+    .query(SQL, [author, title, body, topic])
+    .then(() => {
+      const queryString = `
+    SELECT articles.author, articles.title, articles.body, articles.topic, articles.article_id, articles.votes, articles.created_at, COUNT(comments.body) AS comment_count
+    FROM articles
+    LEFT JOIN comments
+    ON articles.article_id = comments.article_id
+    WHERE articles.article_id = 13
+    GROUP BY articles.article_id;
+    `;
+      return db.query(queryString).then(({ rows }) => {
+        return rows[0];
+      });
+    })
+    .catch((err) => next(err));
+
+  // const SQL = `
+  // SELECT articles.author, articles.title, articles.body, articles.topic, articles.article_id, articles.votes, articles.created_at, COUNT(comments.body) AS comment_count
+  // FROM articles
+  // LEFT JOIN comments
+  // ON articles.article_id = comments.article_id
+  // GROUP BY articles.article_id;
+  // `;
+  // return db
+  //   .query(SQL)
+  //   .then((result) => {
+  //     console.log(result,"RESULT")
+  //     return result;
+  //   })
+  //   .then((result) => {
+  //     const queryString = `
+  //   INSERT INTO articles
+  //   (author, title, body, topic)
+  //   VALUES
+  //   ($1, $2, $3, $4)
+  //   RETURNING $5;
+  //   `;
+  //     return db
+  //       .query(queryString, [author, title, body, topic, result])
+  //       .then((answer) => {
+  //         console.log(answer, "row, model");
+  //         return answer;
+  //       });
+  //   });
+};
+
 module.exports = {
   selectArticles,
   selectArticlesById,
   selectCommentsByArticles,
   insertComments,
   updateArticles,
+  insertArticles,
 };

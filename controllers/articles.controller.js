@@ -3,12 +3,13 @@ const {
   selectArticlesById,
   selectCommentsByArticles,
   insertComments,
-  updateArticles
+  updateArticles,
+  insertArticles,
 } = require("../models/articles.model");
 
 const getArticles = (req, res, next) => {
   const { topic, sort_by, order } = req.query;
-  
+
   selectArticles(topic, sort_by, order)
     .then((articles) => {
       res.status(200).send({ articles });
@@ -48,7 +49,6 @@ const postComments = (req, res, next) => {
     .catch((err) => next(err));
 };
 
-
 const patchArticlesById = (req, res, next) => {
   const { article_id } = req.params;
   const { inc_votes } = req.body;
@@ -60,10 +60,20 @@ const patchArticlesById = (req, res, next) => {
     .catch((err) => next(err));
 };
 
+const postArticles = (req, res, next) => {
+
+  insertArticles(req.body)
+    .then((article) => {
+      res.status(201).send({ article });
+    })
+    .catch((err) => next(err));
+};
+
 module.exports = {
   getArticles,
   getArticlesById,
   getArticlesCommentsById,
   postComments,
-  patchArticlesById
+  patchArticlesById,
+  postArticles,
 };

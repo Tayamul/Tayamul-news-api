@@ -10,6 +10,7 @@ const {
   getArticlesCommentsById,
   postComments,
   patchArticlesById,
+  postArticles,
 } = require("./controllers/articles.controller");
 const {
   invalidPathErrorHandler,
@@ -30,6 +31,8 @@ app.get("/api", (req, res) => {
 app.get("/api/topics", getTopics);
 
 app.get("/api/articles", getArticles);
+app.post("/api/articles", postArticles);
+
 app.get("/api/articles/:article_id", getArticlesById);
 app.get("/api/articles/:article_id/comments", getArticlesCommentsById);
 app.post("/api/articles/:article_id/comments", postComments);
