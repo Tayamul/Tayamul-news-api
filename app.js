@@ -19,7 +19,7 @@ const {
 } = require("./errors/errors");
 const endpoints = require("./endpoints.json");
 
-const { getUsers } = require("./controllers/users.controller");
+const { getUsers, getUsersByUsername } = require("./controllers/users.controller");
 
 const { deleteComments } = require("./controllers/comments.controller");
 
@@ -36,6 +36,7 @@ app.post("/api/articles/:article_id/comments", postComments);
 app.patch("/api/articles/:article_id", patchArticlesById);
 
 app.get("/api/users", getUsers);
+app.get("/api/users/:username", getUsersByUsername)
 
 app.delete("/api/comments/:comment_id", deleteComments);
 

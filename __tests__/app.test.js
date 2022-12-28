@@ -639,3 +639,57 @@ describe("DELETE/api/comments/:comment_id", () => {
   });
 });
 
+describe.only("GET/api/users/:username", () => {
+  test("200: responds with an object of user requested by the client", () => {
+    const username = "butter_bridge";
+    return request(app)
+      .get(`/api/users/${username}`)
+      .expect(200)
+      .then(({ body: { user } }) => {
+        expect(user).toBeInstanceOf(Object);
+        expect(user).toEqual(
+          expect.objectContaining({
+            username: "butter_bridge",
+            name: expect.any(String),
+            avatar_url: expect.any(String),
+          })
+        );
+      });
+  });
+  test("404: non-existent username in the database", () => {
+    const username = "banana";
+    return request(app)
+      .get(`/api/users/${username}`)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not Found In The Database");
+      });
+  });
+  test("400: invalid data type requested by the client (number)", () => {
+    const username = 3;
+    return request(app)
+      .get(`/api/users/${username}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid data type requested by the client (float)", () => {
+    const username = 5.5;
+    return request(app)
+      .get(`/api/users/${username}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid data type requested by the client (negative integer)", () => {
+    const username = -11;
+    return request(app)
+      .get(`/api/users/${username}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+});
