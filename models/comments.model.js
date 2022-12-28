@@ -19,4 +19,26 @@ const dropComments = (comment_id) => {
     });
 };
 
-module.exports = { dropComments };
+const updateComments = (comment_id, inc_votes) => {
+
+  if(comment_id < 1 || inc_votes === undefined) {
+    return Promise.reject({status: 400, msg: "Bad Request"})
+  }
+
+  const queryString = `
+  UPDATE comments
+  SET votes = votes + $1
+  WHERE comment_id = $2
+  RETURNING *`;
+
+  return db
+    .query(queryString, [inc_votes, comment_id])
+    .then(({rows, rowCount}) => {
+      if(rowCount === 0) {
+        return Promise.reject({status: 404, msg: "Not Found In The Database"})
+      }
+      return rows[0]});
+};
+
+
+module.exports = { dropComments, updateComments };

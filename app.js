@@ -21,7 +21,7 @@ const endpoints = require("./endpoints.json");
 
 const { getUsers, getUsersByUsername } = require("./controllers/users.controller");
 
-const { deleteComments } = require("./controllers/comments.controller");
+const { deleteComments, patchComments } = require("./controllers/comments.controller");
 
 app.get("/api", (req, res) => {
   res.status(200).send(endpoints);
@@ -39,6 +39,7 @@ app.get("/api/users", getUsers);
 app.get("/api/users/:username", getUsersByUsername)
 
 app.delete("/api/comments/:comment_id", deleteComments);
+app.patch("/api/comments/:comment_id", patchComments)
 
 app.use(psqlErrorHandler);
 app.use(customErrorHandler);

@@ -639,7 +639,7 @@ describe("DELETE/api/comments/:comment_id", () => {
   });
 });
 
-describe.only("GET/api/users/:username", () => {
+describe("GET/api/users/:username", () => {
   test("200: responds with an object of user requested by the client", () => {
     const username = "butter_bridge";
     return request(app)
@@ -691,5 +691,147 @@ describe.only("GET/api/users/:username", () => {
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad Request");
       });
+  });
+});
+
+describe('PATCH/api/comments/:comment_id', () => {
+  test('200: increments votes by the given amount for an associated comment requested by the client', () => {
+    const comment_id = 3;
+    const newVote = 52;
+    const inc = { inc_votes: newVote};
+    return request(app)
+    .patch(`/api/comments/${comment_id}`)
+    .send(inc)
+    .expect(200)
+    .then(({body: {comment}}) => {
+      expect(comment).toBeInstanceOf(Object);
+      expect(comment).toEqual(
+        expect.objectContaining({
+          comment_id: 3,
+          body: expect.any(String),
+          article_id: expect.any(Number),
+          author: expect.any(String),
+          votes: 152,
+          created_at: expect.any(String),
+        })
+      )
+    })
+  });
+  test('200: decrements votes by the given amount for an associated comment requested by the client', () => {
+    const comment_id = 3;
+    const newVote = -52;
+    const inc = { inc_votes: newVote};
+    return request(app)
+    .patch(`/api/comments/${comment_id}`)
+    .send(inc)
+    .expect(200)
+    .then(({body: {comment}}) => {
+      expect(comment).toBeInstanceOf(Object);
+      expect(comment).toEqual(
+        expect.objectContaining({
+          comment_id: 3,
+          body: expect.any(String),
+          article_id: expect.any(Number),
+          author: expect.any(String),
+          votes: 48,
+          created_at: expect.any(String),
+        })
+      )
+    })
+  });
+  test('404: non-existent comment_id requested by the client', () => {
+    const comment_id = 9999;
+    const newVote = 6;
+    const inc = { inc_votes: newVote};
+    return request(app)
+    .patch(`/api/comments/${comment_id}`)
+    .send(inc)
+    .expect(404)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Not Found In The Database")
+    })
+  });
+  test('400: invalid data type for the comment_id requested by the client (string)', () => {
+    const comment_id = "banana";
+    const newVote = 9;
+    const inc = { inc_votes: newVote};
+    return request(app)
+    .patch(`/api/comments/${comment_id}`)
+    .send(inc)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test('400: invalid data type for the comment_id requested by the client (float)', () => {
+    const comment_id = 2.5;
+    const newVote = 10;
+    const inc = { inc_votes: newVote};
+    return request(app)
+    .patch(`/api/comments/${comment_id}`)
+    .send(inc)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test('400: invalid data type for the comment_id requested by the client (negative integer)', () => {
+    const comment_id = -12;
+    const newVote = 75;
+    const inc = { inc_votes: newVote};
+    return request(app)
+    .patch(`/api/comments/${comment_id}`)
+    .send(inc)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test('400: inc_votes requested by the client is a string', () => {
+    const comment_id = 3;
+    const newVote = "banana";
+    const inc = { inc_votes: newVote};
+    return request(app)
+    .patch(`/api/comments/${comment_id}`)
+    .send(inc)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test('400: inc_votes requested by the client is a float', () => {
+    const comment_id = 3;
+    const newVote = 6.5;
+    const inc = { inc_votes: newVote};
+    return request(app)
+    .patch(`/api/comments/${comment_id}`)
+    .send(inc)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test("400: missing 'inc_votes' key in the object requested by the client", () => {
+    const comment_id = 3;
+    const inc = { noVoteRequested: 50};
+    return request(app)
+    .patch(`/api/comments/${comment_id}`)
+    .send(inc)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test('400: inc_votes is missing a body', () => {
+    const comment_id = 3;
+    const newVote = {};
+    const inc = { inc_votes: newVote};
+    return request(app)
+    .patch(`/api/comments/${comment_id}`)
+    .send(inc)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
   });
 });
