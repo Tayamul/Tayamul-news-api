@@ -3,14 +3,21 @@ const db = require("../db/connection");
 const selectArticles = async (
   topic,
   sort_by = "created_at",
-  order = "desc"
+  order = "desc",
+  limit = 10,
+  p = 1
 ) => {
+
   if (topic) {
     const SQL = `SELECT * FROM topics WHERE slug = $1`;
     const { rowCount } = await db.query(SQL, [topic]);
     if (rowCount === 0) {
       return Promise.reject({ status: 404, msg: `${topic} not found` });
     }
+  }
+
+  if(limit < 1 || isNaN(limit) || limit % 1 !== 0) {
+    return Promise.reject({status: 400, msg: "Bad Request"})
   }
 
   const validSortByQueries = [
@@ -46,7 +53,9 @@ const selectArticles = async (
   }
 
   queryString += `GROUP BY articles.article_id
-  ORDER BY ${sort_by} ${order};`;
+  ORDER BY ${sort_by} ${order}
+  LIMIT ${limit} OFFSET ${(p-1)*limit};`;
+
 
   return db.query(queryString, topicValue).then(({ rows }) => rows);
 };
@@ -220,35 +229,6 @@ const insertArticles = async (newArticle) => {
       });
     })
     .catch((err) => next(err));
-
-  // const SQL = `
-  // SELECT articles.author, articles.title, articles.body, articles.topic, articles.article_id, articles.votes, articles.created_at, COUNT(comments.body) AS comment_count
-  // FROM articles
-  // LEFT JOIN comments
-  // ON articles.article_id = comments.article_id
-  // GROUP BY articles.article_id;
-  // `;
-  // return db
-  //   .query(SQL)
-  //   .then((result) => {
-  //     console.log(result,"RESULT")
-  //     return result;
-  //   })
-  //   .then((result) => {
-  //     const queryString = `
-  //   INSERT INTO articles
-  //   (author, title, body, topic)
-  //   VALUES
-  //   ($1, $2, $3, $4)
-  //   RETURNING $5;
-  //   `;
-  //     return db
-  //       .query(queryString, [author, title, body, topic, result])
-  //       .then((answer) => {
-  //         console.log(answer, "row, model");
-  //         return answer;
-  //       });
-  //   });
 };
 
 module.exports = {

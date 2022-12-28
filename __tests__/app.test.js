@@ -47,7 +47,7 @@ describe("GET/api/articles", () => {
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toBeInstanceOf(Array);
-        expect(articles).toHaveLength(12);
+        expect(articles).toHaveLength(10);
         articles.forEach((article) => {
           expect(article).toEqual(
             expect.objectContaining({
@@ -69,7 +69,7 @@ describe("GET/api/articles", () => {
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toBeInstanceOf(Array);
-        expect(articles).toHaveLength(11);
+        expect(articles).toHaveLength(10);
         articles.forEach((article) => {
           expect(article).toEqual(
             expect.objectContaining({
@@ -91,7 +91,7 @@ describe("GET/api/articles", () => {
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toBeInstanceOf(Array);
-        expect(articles).toHaveLength(12);
+        expect(articles).toHaveLength(10);
         articles.forEach((article) => {
           expect(article).toEqual(
             expect.objectContaining({
@@ -169,7 +169,7 @@ describe("GET/api/articles", () => {
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toBeInstanceOf(Array);
-        expect(articles).toHaveLength(11);
+        expect(articles).toHaveLength(10);
         expect(articles).toBeSortedBy("author");
         articles.forEach((article) => {
           expect(article).toEqual(
@@ -1008,6 +1008,128 @@ describe('POST/api/articles', () => {
     .expect(400)
     .then(({body: {msg}}) => {
       expect(msg).toBe("Bad Request")
+    })
+  });
+});
+
+describe('GET/api/articles-pagination', () => {
+  test('200: accepts a limit query', () => {
+    const limit = 5;
+    return request(app)
+    .get(`/api/articles?limit=${limit}`)
+    .expect(200)
+    .then(({body: {articles}}) => {
+      expect(articles).toBeInstanceOf(Array);
+      expect(articles).toHaveLength(5);
+      articles.forEach((article) => {
+        expect(article).toEqual(
+          expect.objectContaining({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(String),
+          })
+        )
+      })
+    })
+  });
+  test('200: limits the number of responses to 10 by default', () => {
+    return request(app)
+    .get(`/api/articles`)
+    .expect(200)
+    .then(({body: {articles}}) => {
+      console.log(articles, "FIRST 10")
+      expect(articles).toBeInstanceOf(Array);
+      expect(articles).toHaveLength(10);
+      articles.forEach((article) => {
+        expect(article).toEqual(
+          expect.objectContaining({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(String),
+          })
+        )
+      })
+    })
+  });
+  test('400: invalid limit query requested by the client (negative integer)', () => {
+    const limit = -5;
+    return request(app)
+    .get(`/api/articles?limit=${limit}`)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test('400: invalid limit query requested by the client (string)', () => {
+    const limit = "ten";
+    return request(app)
+    .get(`/api/articles?limit=${limit}`)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test('400: invalid limit query requested by the client (float)', () => {
+    const limit = 6.5;
+    return request(app)
+    .get(`/api/articles?limit=${limit}`)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test('200: accepts a page query', () => {
+    const p = 2;
+    return request(app)
+    .get(`/api/articles?p=${p}`)
+    .expect(200)
+    .then(({body: {articles}}) => {
+      expect(articles).toBeInstanceOf(Array);
+      expect(articles).toHaveLength(2);
+      articles.forEach((article) => {
+        expect(article).toEqual(
+          expect.objectContaining({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(String),
+          })
+        )
+      })
+    })
+  });
+  test('200: accepts both page and limit queries', () => {
+    const p = 3;
+    return request(app)
+    .get(`/api/articles?p=${p}&limit=3`)
+    .expect(200)
+    .then(({body: {articles}}) => {
+      expect(articles).toBeInstanceOf(Array);
+      expect(articles).toHaveLength(3);
+      articles.forEach((article) => {
+        expect(article).toEqual(
+          expect.objectContaining({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(String),
+          })
+        )
+      })
     })
   });
 });

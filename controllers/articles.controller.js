@@ -9,8 +9,10 @@ const {
 
 const getArticles = (req, res, next) => {
   const { topic, sort_by, order } = req.query;
+  const limit = req.query.limit;
+  const p = req.query.p;
 
-  selectArticles(topic, sort_by, order)
+  selectArticles(topic, sort_by, order, limit, p)
     .then((articles) => {
       res.status(200).send({ articles });
     })
