@@ -2,7 +2,7 @@ name: Test & Deploy
 
 on:
   push:
-    branches: 
+    branches:
       - main
 
 jobs:
@@ -55,3 +55,5 @@ jobs:
       - name: Test app with live data
         run: NODE_ENV=production DATABASE_URL=${{ secrets.DATABASE_URL }} npm run test-app
 
+      - name: Seed db with prod data
+        run: DATABASE_URL=${{ secrets.DATABASE_URL }} npm run seed:prod
