@@ -13,8 +13,8 @@ const getArticles = (req, res, next) => {
   const p = req.query.p;
 
   selectArticles(topic, sort_by, order, limit, p)
-    .then((articles) => {
-      res.status(200).send({ articles });
+    .then((result) => {
+      res.status(200).send(result);
     })
     .catch((err) => next(err));
 };

@@ -7,7 +7,6 @@ const selectArticles = async (
   limit = 10,
   p = 1
 ) => {
-
   if (topic) {
     const SQL = `SELECT * FROM topics WHERE slug = $1`;
     const { rowCount } = await db.query(SQL, [topic]);
@@ -16,8 +15,12 @@ const selectArticles = async (
     }
   }
 
-  if(limit < 1 || isNaN(limit) || limit % 1 !== 0) {
-    return Promise.reject({status: 400, msg: "Bad Request"})
+  if (limit < 1 || isNaN(limit) || limit % 1 !== 0) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  if(p < 1 || isNaN(p) || p % 1 !== 0) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
   }
 
   const validSortByQueries = [
@@ -54,10 +57,25 @@ const selectArticles = async (
 
   queryString += `GROUP BY articles.article_id
   ORDER BY ${sort_by} ${order}
-  LIMIT ${limit} OFFSET ${(p-1)*limit};`;
+  LIMIT ${limit} OFFSET ${(p - 1) * limit};`;
 
+  return db.query(queryString, topicValue).then((result) => {
+    let queryString2 = `
+    SELECT COUNT(*) AS total_count
+    FROM articles`;
 
-  return db.query(queryString, topicValue).then(({ rows }) => rows);
+    let topicValue2 = [];
+    if (topic !== undefined) {
+      queryString2 += ` WHERE topic = $1`;
+      topicValue2.push(topic);
+    }
+
+    queryString2 += `;`;
+
+    return db.query(queryString2, topicValue2).then((result2) => {
+      return {articles: result.rows, total_count: result2.rows[0].total_count };
+    });
+  });
 };
 
 const selectArticlesById = (article_id) => {
@@ -180,11 +198,11 @@ const updateArticles = (article_id, incrementBy) => {
 const insertArticles = async (newArticle) => {
   const { author, title, body, topic } = newArticle;
 
-  if(!author || !title || !body || !topic) {
+  if (!author || !title || !body || !topic) {
     return Promise.reject({ status: 400, msg: "Bad Request" });
   }
 
-  if(!isNaN(author) || !isNaN(topic) || !isNaN(body) || !isNaN(title)) {
+  if (!isNaN(author) || !isNaN(topic) || !isNaN(body) || !isNaN(title)) {
     return Promise.reject({ status: 400, msg: "Bad Request" });
   }
 

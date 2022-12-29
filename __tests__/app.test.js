@@ -1041,7 +1041,6 @@ describe('GET/api/articles-pagination', () => {
     .get(`/api/articles`)
     .expect(200)
     .then(({body: {articles}}) => {
-      console.log(articles, "FIRST 10")
       expect(articles).toBeInstanceOf(Array);
       expect(articles).toHaveLength(10);
       articles.forEach((article) => {
@@ -1130,6 +1129,86 @@ describe('GET/api/articles-pagination', () => {
           })
         )
       })
+    })
+  });
+  test('400: invalid page query requested by the client (negative integer)', () => {
+    const p = -5;
+    return request(app)
+    .get(`/api/articles?p=${p}`)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test('400: invalid page query requested by the client (string)', () => {
+    const p = "two";
+    return request(app)
+    .get(`/api/articles?p=${p}`)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test('400: invalid page query requested by the client (float)', () => {
+    const p = 5.5;
+    return request(app)
+    .get(`/api/articles?p=${p}`)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    })
+  });
+  test('200: counts the total number of articles', () => {
+    return request(app)
+    .get(`/api/articles`)
+    .expect(200)
+    .then(({body: {articles, total_count}}) => {
+      expect(total_count).toBe("12");
+      expect(articles).toBeInstanceOf(Object);
+      articles.forEach((article) => {
+        expect(article).toEqual(
+          expect.objectContaining({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(String),
+          })
+        )
+      })
+    })
+  });
+  test('200: counts the total number of articles with topic filter applied', () => {
+    return request(app)
+    .get(`/api/articles?topic=cats`)
+    .expect(200)
+    .then(({body: {articles, total_count}}) => {
+      expect(total_count).toBe("1");
+      expect(articles).toBeInstanceOf(Object);
+      articles.forEach((article) => {
+        expect(article).toEqual(
+          expect.objectContaining({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: "cats",
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(String),
+          })
+        )
+      })
+    })
+  });
+  test('404: non-existent topic in the database', () => {
+    const topic = "bootcamp";
+    return request(app)
+    .get(`/api/articles?topic=${topic}`)
+    .expect(404)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe(`${topic} not found`)
     })
   });
 });
