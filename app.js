@@ -3,7 +3,7 @@ const app = express();
 
 app.use(express.json());
 
-const { getTopics } = require("./controllers/topics.controller");
+const { getTopics, postTopics } = require("./controllers/topics.controller");
 const {
   getArticles,
   getArticlesById,
@@ -29,6 +29,7 @@ app.get("/api", (req, res) => {
 });
 
 app.get("/api/topics", getTopics);
+app.post("/api/topics", postTopics)
 
 app.get("/api/articles", getArticles);
 app.post("/api/articles", postArticles);

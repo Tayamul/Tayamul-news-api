@@ -694,521 +694,655 @@ describe("GET/api/users/:username", () => {
   });
 });
 
-describe('PATCH/api/comments/:comment_id', () => {
-  test('200: increments votes by the given amount for an associated comment requested by the client', () => {
+describe("PATCH/api/comments/:comment_id", () => {
+  test("200: increments votes by the given amount for an associated comment requested by the client", () => {
     const comment_id = 3;
     const newVote = 52;
-    const inc = { inc_votes: newVote};
+    const inc = { inc_votes: newVote };
     return request(app)
-    .patch(`/api/comments/${comment_id}`)
-    .send(inc)
-    .expect(200)
-    .then(({body: {comment}}) => {
-      expect(comment).toBeInstanceOf(Object);
-      expect(comment).toEqual(
-        expect.objectContaining({
-          comment_id: 3,
-          body: expect.any(String),
-          article_id: expect.any(Number),
-          author: expect.any(String),
-          votes: 152,
-          created_at: expect.any(String),
-        })
-      )
-    })
+      .patch(`/api/comments/${comment_id}`)
+      .send(inc)
+      .expect(200)
+      .then(({ body: { comment } }) => {
+        expect(comment).toBeInstanceOf(Object);
+        expect(comment).toEqual(
+          expect.objectContaining({
+            comment_id: 3,
+            body: expect.any(String),
+            article_id: expect.any(Number),
+            author: expect.any(String),
+            votes: 152,
+            created_at: expect.any(String),
+          })
+        );
+      });
   });
-  test('200: decrements votes by the given amount for an associated comment requested by the client', () => {
+  test("200: decrements votes by the given amount for an associated comment requested by the client", () => {
     const comment_id = 3;
     const newVote = -52;
-    const inc = { inc_votes: newVote};
+    const inc = { inc_votes: newVote };
     return request(app)
-    .patch(`/api/comments/${comment_id}`)
-    .send(inc)
-    .expect(200)
-    .then(({body: {comment}}) => {
-      expect(comment).toBeInstanceOf(Object);
-      expect(comment).toEqual(
-        expect.objectContaining({
-          comment_id: 3,
-          body: expect.any(String),
-          article_id: expect.any(Number),
-          author: expect.any(String),
-          votes: 48,
-          created_at: expect.any(String),
-        })
-      )
-    })
+      .patch(`/api/comments/${comment_id}`)
+      .send(inc)
+      .expect(200)
+      .then(({ body: { comment } }) => {
+        expect(comment).toBeInstanceOf(Object);
+        expect(comment).toEqual(
+          expect.objectContaining({
+            comment_id: 3,
+            body: expect.any(String),
+            article_id: expect.any(Number),
+            author: expect.any(String),
+            votes: 48,
+            created_at: expect.any(String),
+          })
+        );
+      });
   });
-  test('404: non-existent comment_id requested by the client', () => {
+  test("404: non-existent comment_id requested by the client", () => {
     const comment_id = 9999;
     const newVote = 6;
-    const inc = { inc_votes: newVote};
+    const inc = { inc_votes: newVote };
     return request(app)
-    .patch(`/api/comments/${comment_id}`)
-    .send(inc)
-    .expect(404)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Not Found In The Database")
-    })
+      .patch(`/api/comments/${comment_id}`)
+      .send(inc)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not Found In The Database");
+      });
   });
-  test('400: invalid data type for the comment_id requested by the client (string)', () => {
+  test("400: invalid data type for the comment_id requested by the client (string)", () => {
     const comment_id = "banana";
     const newVote = 9;
-    const inc = { inc_votes: newVote};
+    const inc = { inc_votes: newVote };
     return request(app)
-    .patch(`/api/comments/${comment_id}`)
-    .send(inc)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .patch(`/api/comments/${comment_id}`)
+      .send(inc)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('400: invalid data type for the comment_id requested by the client (float)', () => {
+  test("400: invalid data type for the comment_id requested by the client (float)", () => {
     const comment_id = 2.5;
     const newVote = 10;
-    const inc = { inc_votes: newVote};
+    const inc = { inc_votes: newVote };
     return request(app)
-    .patch(`/api/comments/${comment_id}`)
-    .send(inc)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .patch(`/api/comments/${comment_id}`)
+      .send(inc)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('400: invalid data type for the comment_id requested by the client (negative integer)', () => {
+  test("400: invalid data type for the comment_id requested by the client (negative integer)", () => {
     const comment_id = -12;
     const newVote = 75;
-    const inc = { inc_votes: newVote};
+    const inc = { inc_votes: newVote };
     return request(app)
-    .patch(`/api/comments/${comment_id}`)
-    .send(inc)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .patch(`/api/comments/${comment_id}`)
+      .send(inc)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('400: inc_votes requested by the client is a string', () => {
+  test("400: inc_votes requested by the client is a string", () => {
     const comment_id = 3;
     const newVote = "banana";
-    const inc = { inc_votes: newVote};
+    const inc = { inc_votes: newVote };
     return request(app)
-    .patch(`/api/comments/${comment_id}`)
-    .send(inc)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .patch(`/api/comments/${comment_id}`)
+      .send(inc)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('400: inc_votes requested by the client is a float', () => {
+  test("400: inc_votes requested by the client is a float", () => {
     const comment_id = 3;
     const newVote = 6.5;
-    const inc = { inc_votes: newVote};
+    const inc = { inc_votes: newVote };
     return request(app)
-    .patch(`/api/comments/${comment_id}`)
-    .send(inc)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .patch(`/api/comments/${comment_id}`)
+      .send(inc)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
   test("400: missing 'inc_votes' key in the object requested by the client", () => {
     const comment_id = 3;
-    const inc = { noVoteRequested: 50};
+    const inc = { noVoteRequested: 50 };
     return request(app)
-    .patch(`/api/comments/${comment_id}`)
-    .send(inc)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .patch(`/api/comments/${comment_id}`)
+      .send(inc)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('400: inc_votes is missing a body', () => {
+  test("400: inc_votes is missing a body", () => {
     const comment_id = 3;
     const newVote = {};
-    const inc = { inc_votes: newVote};
+    const inc = { inc_votes: newVote };
     return request(app)
-    .patch(`/api/comments/${comment_id}`)
-    .send(inc)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .patch(`/api/comments/${comment_id}`)
+      .send(inc)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
 });
 
-describe('POST/api/articles', () => {
-  test('201: responds with a newly added article ', () => {
+describe("POST/api/articles", () => {
+  test("201: responds with a newly added article ", () => {
     const newArticle = {
       author: "butter_bridge",
       title: "Thoughts on bootcamp",
       body: "It's an amazing experience where you get to learn so much more than self-studying.",
-      topic: "mitch"
-    }
+      topic: "mitch",
+    };
     return request(app)
-    .post(`/api/articles`)
-    .send(newArticle)
-    .expect(201)
-    .then(({body: {article}}) => {
-      expect(article).toBeInstanceOf(Object)
-      expect(article).toEqual(
-        expect.objectContaining({
-          author: "butter_bridge",
-          title: "Thoughts on bootcamp",
-          body: "It's an amazing experience where you get to learn so much more than self-studying.",
-          topic: "mitch",
-          article_id: 13,
-          votes: expect.any(Number),
-          created_at: expect.any(String),
-          comment_count: expect.any(String)
-        })
-      )
-    })
+      .post(`/api/articles`)
+      .send(newArticle)
+      .expect(201)
+      .then(({ body: { article } }) => {
+        expect(article).toBeInstanceOf(Object);
+        expect(article).toEqual(
+          expect.objectContaining({
+            author: "butter_bridge",
+            title: "Thoughts on bootcamp",
+            body: "It's an amazing experience where you get to learn so much more than self-studying.",
+            topic: "mitch",
+            article_id: 13,
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            comment_count: expect.any(String),
+          })
+        );
+      });
   });
-  test('404: non-existent author in the database', () => {
+  test("404: non-existent author in the database", () => {
     const newArticle = {
       author: "peter_griffin",
       title: "Thoughts on bootcamp",
       body: "It's an amazing experience where you get to learn so much more than self-studying.",
-      topic: "mitch"
-    }
+      topic: "mitch",
+    };
     return request(app)
-    .post(`/api/articles`)
-    .send(newArticle)
-    .expect(404)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Not Found In The Database")
-    })
+      .post(`/api/articles`)
+      .send(newArticle)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not Found In The Database");
+      });
   });
-  test('404: non-existent topic in the database', () => {
+  test("404: non-existent topic in the database", () => {
     const newArticle = {
       author: "butter_bridge",
       title: "Thoughts on bootcamp",
       body: "It's an amazing experience where you get to learn so much more than self-studying.",
-      topic: "bootcamp"
-    }
+      topic: "bootcamp",
+    };
     return request(app)
-    .post(`/api/articles`)
-    .send(newArticle)
-    .expect(404)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Not Found In The Database")
-    })
+      .post(`/api/articles`)
+      .send(newArticle)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not Found In The Database");
+      });
   });
-  test('400: invalid author requested by the client (number)', () => {
+  test("400: invalid author requested by the client (number)", () => {
     const newArticle = {
       author: 2,
       title: "Thoughts on bootcamp",
       body: "It's an amazing experience where you get to learn so much more than self-studying.",
-      topic: "mitch"
-    }
+      topic: "mitch",
+    };
     return request(app)
-    .post(`/api/articles`)
-    .send(newArticle)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .post(`/api/articles`)
+      .send(newArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('400: invalid topic requested by the client (number)', () => {
+  test("400: invalid topic requested by the client (number)", () => {
     const newArticle = {
       author: "butter_bridge",
       title: "Thoughts on bootcamp",
       body: "It's an amazing experience where you get to learn so much more than self-studying.",
-      topic: 5
-    }
+      topic: 5,
+    };
     return request(app)
-    .post(`/api/articles`)
-    .send(newArticle)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .post(`/api/articles`)
+      .send(newArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
   test("400: invalid data type for 'body' key requested by the client (number)", () => {
     const newArticle = {
       author: "butter_bridge",
       title: "Thoughts on bootcamp",
       body: 5,
-      topic: "mitch"
-    }
+      topic: "mitch",
+    };
     return request(app)
-    .post(`/api/articles`)
-    .send(newArticle)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .post(`/api/articles`)
+      .send(newArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
   test("400: invalid data type for 'title' key requested by the client (number)", () => {
     const newArticle = {
       author: "butter_bridge",
       title: 10,
       body: "It's an amazing experience where you get to learn so much more than self-studying.",
-      topic: "mitch"
-    }
+      topic: "mitch",
+    };
     return request(app)
-    .post(`/api/articles`)
-    .send(newArticle)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .post(`/api/articles`)
+      .send(newArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
   test("400: missing 'author' key from the client's request", () => {
     const newArticle = {
       title: "Thoughts on bootcamp",
       body: "It's an amazing experience where you get to learn so much more than self-studying.",
-      topic: "mitch"
-    }
+      topic: "mitch",
+    };
     return request(app)
-    .post(`/api/articles`)
-    .send(newArticle)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .post(`/api/articles`)
+      .send(newArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
   test("400: missing 'title' key from the client's request", () => {
     const newArticle = {
       author: "butter_bridge",
       body: "It's an amazing experience where you get to learn so much more than self-studying.",
-      topic: "mitch"
-    }
+      topic: "mitch",
+    };
     return request(app)
-    .post(`/api/articles`)
-    .send(newArticle)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .post(`/api/articles`)
+      .send(newArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
   test("400: missing 'body' key from the client's request", () => {
     const newArticle = {
       author: "butter_bridge",
       title: "Thoughts on bootcamp",
-      topic: "mitch"
-    }
+      topic: "mitch",
+    };
     return request(app)
-    .post(`/api/articles`)
-    .send(newArticle)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .post(`/api/articles`)
+      .send(newArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
   test("400: missing 'topic' key from the client's request", () => {
     const newArticle = {
       author: "butter_bridge",
       title: "Thoughts on bootcamp",
-      body: "It's an amazing experience where you get to learn so much more than self-studying."
-    }
+      body: "It's an amazing experience where you get to learn so much more than self-studying.",
+    };
     return request(app)
-    .post(`/api/articles`)
-    .send(newArticle)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .post(`/api/articles`)
+      .send(newArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
 });
 
-describe('GET/api/articles-pagination', () => {
-  test('200: accepts a limit query', () => {
+describe("GET/api/articles-pagination", () => {
+  test("200: accepts a limit query", () => {
     const limit = 5;
     return request(app)
-    .get(`/api/articles?limit=${limit}`)
-    .expect(200)
-    .then(({body: {articles}}) => {
-      expect(articles).toBeInstanceOf(Array);
-      expect(articles).toHaveLength(5);
-      articles.forEach((article) => {
-        expect(article).toEqual(
-          expect.objectContaining({
-            author: expect.any(String),
-            title: expect.any(String),
-            article_id: expect.any(Number),
-            topic: expect.any(String),
-            created_at: expect.any(String),
-            votes: expect.any(Number),
-            comment_count: expect.any(String),
-          })
-        )
-      })
-    })
+      .get(`/api/articles?limit=${limit}`)
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles).toHaveLength(5);
+        articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(String),
+            })
+          );
+        });
+      });
   });
-  test('200: limits the number of responses to 10 by default', () => {
+  test("200: limits the number of responses to 10 by default", () => {
     return request(app)
-    .get(`/api/articles`)
-    .expect(200)
-    .then(({body: {articles}}) => {
-      expect(articles).toBeInstanceOf(Array);
-      expect(articles).toHaveLength(10);
-      articles.forEach((article) => {
-        expect(article).toEqual(
-          expect.objectContaining({
-            author: expect.any(String),
-            title: expect.any(String),
-            article_id: expect.any(Number),
-            topic: expect.any(String),
-            created_at: expect.any(String),
-            votes: expect.any(Number),
-            comment_count: expect.any(String),
-          })
-        )
-      })
-    })
+      .get(`/api/articles`)
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles).toHaveLength(10);
+        articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(String),
+            })
+          );
+        });
+      });
   });
-  test('400: invalid limit query requested by the client (negative integer)', () => {
+  test("400: invalid limit query requested by the client (negative integer)", () => {
     const limit = -5;
     return request(app)
-    .get(`/api/articles?limit=${limit}`)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .get(`/api/articles?limit=${limit}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('400: invalid limit query requested by the client (string)', () => {
+  test("400: invalid limit query requested by the client (string)", () => {
     const limit = "ten";
     return request(app)
-    .get(`/api/articles?limit=${limit}`)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .get(`/api/articles?limit=${limit}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('400: invalid limit query requested by the client (float)', () => {
+  test("400: invalid limit query requested by the client (float)", () => {
     const limit = 6.5;
     return request(app)
-    .get(`/api/articles?limit=${limit}`)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .get(`/api/articles?limit=${limit}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('200: accepts a page query', () => {
+  test("200: accepts a page query", () => {
     const p = 2;
     return request(app)
-    .get(`/api/articles?p=${p}`)
-    .expect(200)
-    .then(({body: {articles}}) => {
-      expect(articles).toBeInstanceOf(Array);
-      expect(articles).toHaveLength(2);
-      articles.forEach((article) => {
-        expect(article).toEqual(
-          expect.objectContaining({
-            author: expect.any(String),
-            title: expect.any(String),
-            article_id: expect.any(Number),
-            topic: expect.any(String),
-            created_at: expect.any(String),
-            votes: expect.any(Number),
-            comment_count: expect.any(String),
-          })
-        )
-      })
-    })
+      .get(`/api/articles?p=${p}`)
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles).toHaveLength(2);
+        articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(String),
+            })
+          );
+        });
+      });
   });
-  test('200: accepts both page and limit queries', () => {
+  test("200: accepts both page and limit queries", () => {
     const p = 3;
     return request(app)
-    .get(`/api/articles?p=${p}&limit=3`)
-    .expect(200)
-    .then(({body: {articles}}) => {
-      expect(articles).toBeInstanceOf(Array);
-      expect(articles).toHaveLength(3);
-      articles.forEach((article) => {
-        expect(article).toEqual(
-          expect.objectContaining({
-            author: expect.any(String),
-            title: expect.any(String),
-            article_id: expect.any(Number),
-            topic: expect.any(String),
-            created_at: expect.any(String),
-            votes: expect.any(Number),
-            comment_count: expect.any(String),
-          })
-        )
-      })
-    })
+      .get(`/api/articles?p=${p}&limit=3`)
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles).toHaveLength(3);
+        articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(String),
+            })
+          );
+        });
+      });
   });
-  test('400: invalid page query requested by the client (negative integer)', () => {
+  test("400: invalid page query requested by the client (negative integer)", () => {
     const p = -5;
     return request(app)
-    .get(`/api/articles?p=${p}`)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .get(`/api/articles?p=${p}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('400: invalid page query requested by the client (string)', () => {
+  test("400: invalid page query requested by the client (string)", () => {
     const p = "two";
     return request(app)
-    .get(`/api/articles?p=${p}`)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .get(`/api/articles?p=${p}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('400: invalid page query requested by the client (float)', () => {
+  test("400: invalid page query requested by the client (float)", () => {
     const p = 5.5;
     return request(app)
-    .get(`/api/articles?p=${p}`)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request")
-    })
+      .get(`/api/articles?p=${p}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
-  test('200: counts the total number of articles', () => {
+  test("200: counts the total number of articles", () => {
     return request(app)
-    .get(`/api/articles`)
-    .expect(200)
-    .then(({body: {articles, total_count}}) => {
-      expect(total_count).toBe("12");
-      expect(articles).toBeInstanceOf(Object);
-      articles.forEach((article) => {
-        expect(article).toEqual(
-          expect.objectContaining({
-            author: expect.any(String),
-            title: expect.any(String),
-            article_id: expect.any(Number),
-            topic: expect.any(String),
-            created_at: expect.any(String),
-            votes: expect.any(Number),
-            comment_count: expect.any(String),
-          })
-        )
-      })
-    })
+      .get(`/api/articles`)
+      .expect(200)
+      .then(({ body: { articles, total_count } }) => {
+        expect(total_count).toBe("12");
+        expect(articles).toBeInstanceOf(Object);
+        articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(String),
+            })
+          );
+        });
+      });
   });
-  test('200: counts the total number of articles with topic filter applied', () => {
+  test("200: counts the total number of articles with topic filter applied", () => {
     return request(app)
-    .get(`/api/articles?topic=cats`)
-    .expect(200)
-    .then(({body: {articles, total_count}}) => {
-      expect(total_count).toBe("1");
-      expect(articles).toBeInstanceOf(Object);
-      articles.forEach((article) => {
-        expect(article).toEqual(
-          expect.objectContaining({
-            author: expect.any(String),
-            title: expect.any(String),
-            article_id: expect.any(Number),
-            topic: "cats",
-            created_at: expect.any(String),
-            votes: expect.any(Number),
-            comment_count: expect.any(String),
-          })
-        )
-      })
-    })
+      .get(`/api/articles?topic=cats`)
+      .expect(200)
+      .then(({ body: { articles, total_count } }) => {
+        expect(total_count).toBe("1");
+        expect(articles).toBeInstanceOf(Object);
+        articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: "cats",
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(String),
+            })
+          );
+        });
+      });
   });
-  test('404: non-existent topic in the database', () => {
+  test("404: non-existent topic in the database", () => {
     const topic = "bootcamp";
     return request(app)
-    .get(`/api/articles?topic=${topic}`)
-    .expect(404)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe(`${topic} not found`)
-    })
+      .get(`/api/articles?topic=${topic}`)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe(`${topic} not found`);
+      });
+  });
+});
+
+describe.only("POST/api/topics", () => {
+  test("201: responds an object containing the newly added topic", () => {
+    const newTopic = {
+      slug: "bootcamp",
+      description: "all about bootcamps",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(201)
+      .then(({ body: { topic } }) => {
+        expect(topic).toBeInstanceOf(Object);
+        expect(topic).toEqual(
+          expect.objectContaining({
+            slug: "bootcamp",
+            description: "all about bootcamps",
+          })
+        );
+      });
+  });
+  test("400: invalid data type for 'slug' key requested by the client (number)", () => {
+    const newTopic = {
+      slug: 15,
+      description: "all about bootcamps",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid data type for 'slug' key requested by the client (negative integer)", () => {
+    const newTopic = {
+      slug: -3,
+      description: "all about bootcamps",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid data type for 'slug' key requested by the client (float)", () => {
+    const newTopic = {
+      slug: 8.5,
+      description: "all about bootcamps",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid data type for 'description' key requested by the client (number)", () => {
+    const newTopic = {
+      slug: "bootcamp",
+      description: 31,
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid data type for 'description' key requested by the client (negative integer)", () => {
+    const newTopic = {
+      slug: "bootcamp",
+      description: -45,
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid data type for 'description' key requested by the client (float)", () => {
+    const newTopic = {
+      slug: "bootcamp",
+      description: 39.5,
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: missing 'slug' key from the client's request", () => {
+    const newTopic = {
+      description: "all about bootcamps",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: missing 'description' key from the client's request", () => {
+    const newTopic = {
+      slug: "bootcamp",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("400: missing both key from the client's request", () => {
+    const newTopic = {};
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
   });
 });
