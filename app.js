@@ -11,6 +11,7 @@ const {
   postComments,
   patchArticlesById,
   postArticles,
+  deleteArticles
 } = require("./controllers/articles.controller");
 const {
   invalidPathErrorHandler,
@@ -38,6 +39,7 @@ app.get("/api/articles/:article_id", getArticlesById);
 app.get("/api/articles/:article_id/comments", getArticlesCommentsById);
 app.post("/api/articles/:article_id/comments", postComments);
 app.patch("/api/articles/:article_id", patchArticlesById);
+app.delete("/api/articles/:article_id", deleteArticles)
 
 app.get("/api/users", getUsers);
 app.get("/api/users/:username", getUsersByUsername)

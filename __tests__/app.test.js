@@ -1213,7 +1213,7 @@ describe("GET/api/articles-pagination", () => {
   });
 });
 
-describe.only("POST/api/topics", () => {
+describe("POST/api/topics", () => {
   test("201: responds an object containing the newly added topic", () => {
     const newTopic = {
       slug: "bootcamp",
@@ -1344,5 +1344,46 @@ describe.only("POST/api/topics", () => {
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad Request");
       });
+  });
+});
+
+describe.only('DELETE/api/articles/:article_id', () => {
+  test('204: delete the given article requested by the client', () => {
+    const article_id = 2;
+    return request(app).delete(`/api/articles/${article_id}`).expect(204);
+    // const article_id = 1;
+    // return request(app).delete(`/api/articles/${article_id}`).expect(204);
+  });
+  test('404: non-existent article in the database', () => {
+    const article_id = 999;
+    return request(app).delete(`/api/articles/${article_id}`)
+    .expect(404)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Not Found In The Database")
+    });
+  });
+  test('400: invalid data type requested by the client (string)', () => {
+    const article_id = "three";
+    return request(app).delete(`/api/articles/${article_id}`)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    });
+  });
+  test('400: invalid data type requested by the client (float)', () => {
+    const article_id = 3.5;
+    return request(app).delete(`/api/articles/${article_id}`)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    });
+  });
+  test('400: invalid data type requested by the client (negative integer)', () => {
+    const article_id = -5;
+    return request(app).delete(`/api/articles/${article_id}`)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request")
+    });
   });
 });

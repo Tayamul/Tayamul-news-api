@@ -19,7 +19,7 @@ const selectArticles = async (
     return Promise.reject({ status: 400, msg: "Bad Request" });
   }
 
-  if(p < 1 || isNaN(p) || p % 1 !== 0) {
+  if (p < 1 || isNaN(p) || p % 1 !== 0) {
     return Promise.reject({ status: 400, msg: "Bad Request" });
   }
 
@@ -73,7 +73,10 @@ const selectArticles = async (
     queryString2 += `;`;
 
     return db.query(queryString2, topicValue2).then((result2) => {
-      return {articles: result.rows, total_count: result2.rows[0].total_count };
+      return {
+        articles: result.rows,
+        total_count: result2.rows[0].total_count,
+      };
     });
   });
 };
@@ -249,6 +252,28 @@ const insertArticles = async (newArticle) => {
     .catch((err) => next(err));
 };
 
+const dropArticles = (article_id) => {
+  if (article_id < 1) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  const queryString = `
+  SELECT * FROM articles WHERE article_id = $1;`;
+  return db.query(queryString, [article_id]).then(({ rowCount }) => {
+
+    if (rowCount === 0) {
+      return Promise.reject({ status: 404, msg: "Not Found In The Database" });
+    }
+
+    const queryString2 = `DELETE FROM articles WHERE article_id = $1;`;
+
+    return db.query(queryString2, [article_id]);
+  });
+  // return db.query("DELETE FROM articles WHERE article_id = $1 RETURNING *;", [
+  //   article_id,
+  // ]);
+};
+
 module.exports = {
   selectArticles,
   selectArticlesById,
@@ -256,4 +281,5 @@ module.exports = {
   insertComments,
   updateArticles,
   insertArticles,
+  dropArticles,
 };
